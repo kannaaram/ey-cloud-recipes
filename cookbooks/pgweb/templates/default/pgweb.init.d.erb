@@ -1,0 +1,45 @@
+#!/sbin/openrc-run
+# Copyright 1999-2016 Gentoo Foundation
+# Distributed under the terms of the GNU General Public License v2
+# $Id$
+
+NAME="pgweb"
+PIDFILE="/var/run/$NAME.pid"
+USER="deploy"
+SU="su $USER -s /bin/bash"
+TIMEOUT=5
+description="pgweb"
+command="/usr/bin/pgweb"
+command_args=" --bind=0.0.0.0 --listen=8089 --bookmarks-dir=/home/deploy/.pgweb/bookmarks/ --bookmark=wellthie --readonly -s"
+
+depend() {
+  after network.target
+}
+
+start() {
+  if [ -f $PIDFILE ]; then
+      echo "Already running... cat $PIDFILE"
+      exit 0
+  fi
+
+  while [ ! -f /var/run/postgresql/.s.PGSQL.*.lock ]
+  do
+      sleep 1
+      TIMEOUT=`expr $TIMEOUT - 1`
+      if test $TIMEOUT -eq 0; then
+          exit 1
+      fi
+  done
+  start-stop-daemon --start -b -- ${command} ${command_args} # Note! Logs are lost.
+  sleep 1
+  PID=`pidof pgweb`
+  if [ -z $PID ]; then
+      exit 1
+  else
+      echo $PID > $PIDFILE
+  fi
+}
+
+stop() {
+  start-stop-daemon --stop --pidfile=$PIDFILE
+}
