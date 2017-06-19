@@ -4,9 +4,14 @@
 #
 # Copyright:: 2017, Wellthie, All Rights Reserved.
 
-remote_file "/data/pgweb.zip" do
-  source "https://github.com/sosedoff/pgweb/releases/download/v#{node[:pgweb][:version]}/pgweb_linux_amd64.zip"
+cookbook_file '/data/pgweb.zip' do
+  source 'pgweb.zip'
+  action :create
 end
+
+# remote_file "/data/pgweb.zip" do
+#   source "https://github.com/sosedoff/pgweb/releases/download/v#{node[:pgweb][:version]}/pgweb_linux_amd64.zip"
+# end
 
 execute 'extract the pgweb zip' do
   command 'cd /data; unzip -u pgweb.zip'
