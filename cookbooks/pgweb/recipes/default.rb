@@ -4,8 +4,11 @@
 #
 # Copyright:: 2017, Wellthie, All Rights Reserved.
 
-cookbook_file '/data/pgweb.zip' do
-  source 'pgweb.zip'
+cookbook_file '/usr/bin/pgweb' do
+  source 'pgweb'
+  owner 'root'
+  group 'root'
+  mode  '0700'
   action :create
 end
 
@@ -13,18 +16,18 @@ end
 #   source "https://github.com/sosedoff/pgweb/releases/download/v#{node[:pgweb][:version]}/pgweb_linux_amd64.zip"
 # end
 
-execute 'extract the pgweb zip' do
-  command 'cd /data; unzip -u pgweb.zip'
-  cwd '/data/'
-  only_if { File.exists?("/data/pgweb.zip") }
-end
-
-remote_file "/usr/bin/pgweb" do
-  source "file:///data/pgweb_linux_amd64"
-  owner 'root'
-  group 'root'
-  mode 0700
-end
+# execute 'extract the pgweb zip' do
+#   command 'cd /data; unzip -u pgweb.zip'
+#   cwd '/data/'
+#   only_if { File.exists?("/data/pgweb.zip") }
+# end
+#
+# remote_file "/usr/bin/pgweb" do
+#   source "file:///data/pgweb_linux_amd64"
+#   owner 'root'
+#   group 'root'
+#   mode 0700
+# end
 
 directory '/home/deploy/.pgweb/bookmarks' do
   recursive true
