@@ -12,6 +12,13 @@ cookbook_file '/usr/bin/pgweb' do
   action :create
 end
 
+template '/engineyard/bin/pgweb' do
+  source 'pgweb.init.d.erb'
+  owner node[:owner_name]
+  group node[:owner_name]
+  mode 0755
+end
+
 directory '/home/deploy/.pgweb/bookmarks' do
   recursive true
 end
@@ -21,7 +28,21 @@ template '/home/deploy/.pgweb/bookmarks/wellthie.toml' do
   mode '0644'
 end
 
-execute 'start pgweb' do
-  command 'nohup /engineyard/bin/pgweb  --bind=0.0.0.0 --listen=8089 --bookmarks-dir=/home/deploy/.pgweb/bookmarks/ --bookmark=wellthie --readonly -s > /dev/null 2>&1 &'
-  user 'deploy'
+template "/etc/monit.d/pgweb.monitrc" do
+  source "pgweb.monitrc.erb"
+  owner node[:owner_name]
+  group node[:owner_name]
+  mode 0644
+  variables({
+    :user => node[:owner_name],
+    :group => node[:owner_name]
+  })
+end
+
+execute "monit-reload" do
+  command "monit quit && telinit q"
+end
+
+execute "start-pgweb" do
+  command "sleep 3 && monit start pgweb"
 end

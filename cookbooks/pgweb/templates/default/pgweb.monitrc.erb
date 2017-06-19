@@ -1,0 +1,6 @@
+check process pgweb
+with pidfile /var/run/pgweb.pid
+  start program = "/engineyard/bin/pgweb start"
+  stop program = "/engineyard/bin/pgweb stop"
+  if totalmem is greater than 512 MB for 2 cycles then restart # eating up memory?
+  group pgweb
